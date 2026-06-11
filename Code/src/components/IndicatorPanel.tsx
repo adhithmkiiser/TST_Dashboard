@@ -154,8 +154,8 @@ const IndicatorPanel: React.FC<IndicatorPanelProps> = ({
         left: 'center',
         bottom: '0%',
         inRange: {
-          // Viridis color scale
-          color: ['#440154', '#3b528b', '#21918c', '#5dc963', '#fde725']
+          // Light slate -> light indigo -> indigo -> navy gradient suitable for white text
+          color: ['#f8fafc', '#a5b4fc', '#6366f1', '#4f46e5', '#3730a3', '#1e1b4b']
         },
         textStyle: { color: '#475569', fontSize: 10 },
         formatter: (value: number) => {
@@ -171,7 +171,10 @@ const IndicatorPanel: React.FC<IndicatorPanelProps> = ({
           label: {
             show: yCategories.length <= 25,
             fontSize: 8,
-            color: '#fff',
+            color: (params: any) => {
+              const val = params.value[3] || 0;
+              return val <= 2 ? '#334155' : '#ffffff'; // dark text for light blue cells, white for dark indigo/navy cells
+            },
             formatter: (params: any) => params.value[3] || '' // display raw call count inside cell
           },
           emphasis: {
