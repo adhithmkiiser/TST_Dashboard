@@ -1,0 +1,9 @@
+[build]
+  # The directory where package.json and the source code reside
+  base = "Code"
+  
+  # The build command to run inside the base directory
+  command = "npm run build"
+  
+  # The folder containing the production build outputs, relative to the base directory
+  publish = "dist"
