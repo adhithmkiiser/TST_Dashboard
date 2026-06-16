@@ -1,0 +1,15 @@
+Start (s),End (s),Scientific name,Common name,Confidence,File
+0.0,3.0,Psilopogon viridis,White-cheeked Barbet,0.9927,D:\TST_DATA\ATR_01\LNC\LNC_01\Data\TST-9_20260214_074500.wav
+3.0,6.0,Psilopogon viridis,White-cheeked Barbet,0.9829,D:\TST_DATA\ATR_01\LNC\LNC_01\Data\TST-9_20260214_074500.wav
+6.0,9.0,Psilopogon viridis,White-cheeked Barbet,0.9381,D:\TST_DATA\ATR_01\LNC\LNC_01\Data\TST-9_20260214_074500.wav
+9.0,12.0,Psilopogon viridis,White-cheeked Barbet,0.9762,D:\TST_DATA\ATR_01\LNC\LNC_01\Data\TST-9_20260214_074500.wav
+12.0,15.0,Pycnonotus luteolus,White-browed Bulbul,0.9739,D:\TST_DATA\ATR_01\LNC\LNC_01\Data\TST-9_20260214_074500.wav
+15.0,18.0,Pycnonotus luteolus,White-browed Bulbul,0.8635,D:\TST_DATA\ATR_01\LNC\LNC_01\Data\TST-9_20260214_074500.wav
+51.0,54.0,Psilopogon viridis,White-cheeked Barbet,0.8408,D:\TST_DATA\ATR_01\LNC\LNC_01\Data\TST-9_20260214_074500.wav
+54.0,57.0,Psilopogon viridis,White-cheeked Barbet,0.7709,D:\TST_DATA\ATR_01\LNC\LNC_01\Data\TST-9_20260214_074500.wav
+75.0,78.0,Lanius cristatus,Brown Shrike,0.8263,D:\TST_DATA\ATR_01\LNC\LNC_01\Data\TST-9_20260214_074500.wav
+78.0,81.0,Psilopogon viridis,White-cheeked Barbet,0.7305,D:\TST_DATA\ATR_01\LNC\LNC_01\Data\TST-9_20260214_074500.wav
+108.0,111.0,Lanius cristatus,Brown Shrike,0.7068,D:\TST_DATA\ATR_01\LNC\LNC_01\Data\TST-9_20260214_074500.wav
+150.0,153.0,Lanius cristatus,Brown Shrike,0.7471,D:\TST_DATA\ATR_01\LNC\LNC_01\Data\TST-9_20260214_074500.wav
+153.0,156.0,Lanius cristatus,Brown Shrike,0.7302,D:\TST_DATA\ATR_01\LNC\LNC_01\Data\TST-9_20260214_074500.wav
+165.0,168.0,Lanius cristatus,Brown Shrike,0.9079,D:\TST_DATA\ATR_01\LNC\LNC_01\Data\TST-9_20260214_074500.wav

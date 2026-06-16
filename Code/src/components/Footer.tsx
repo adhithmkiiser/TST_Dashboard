@@ -7,7 +7,7 @@ const Footer: React.FC = () => {
         <p className="collab-text">
           This project is a collaborative initiative of the <strong>Bird Lab at IISER Tirupati</strong>, <strong>The Shola Trust</strong>, and the <strong>Tamil Nadu Forest Department</strong>.
         </p>
-        
+
         <div className="collab-logos">
           {/* Logo 1: IISER Tirupati Bird Lab */}
           <div className="logo-card">
@@ -23,7 +23,7 @@ const Footer: React.FC = () => {
         </div>
 
         <div className="footer-copyright">
-          &copy; {new Date().getFullYear()} IISER Tirupati Bird Lab. All rights reserved.
+          &copy; {new Date().getFullYear()} Bird Lab, IISER Tirupati. All rights reserved.
         </div>
       </div>
     </footer>

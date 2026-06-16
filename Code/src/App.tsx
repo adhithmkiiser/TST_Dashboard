@@ -103,10 +103,10 @@ const App: React.FC = () => {
     return data.detections.filter((d) => {
       const recIdx = d[0];
       const confidence = d[4];
-      
+
       // Filter by confidence threshold
       if (confidence < thresholdPercentage) return false;
-      
+
       // Filter by recorder selection
       return validRecorderIndices.has(recIdx);
     });
@@ -118,10 +118,10 @@ const App: React.FC = () => {
     return data.detections.filter((d) => {
       const recIdx = d[0];
       const confidence = d[4];
-      
+
       // Filter by confidence threshold
       if (confidence < thresholdPercentage) return false;
-      
+
       // Filter by landscape recorders
       return landscapeRecorderIndices.has(recIdx);
     });
@@ -167,9 +167,9 @@ const App: React.FC = () => {
     // Calculate effort stats
     const filesProcessed = filteredRecorders.reduce((sum, r) => sum + r.actual_files, 0);
     const expectedFiles = filteredRecorders.reduce((sum, r) => sum + (r.expected_files || 0), 0);
-    
+
     // Recorders metadata has days (about 11 days per site)
-    const days = filteredRecorders.length * 11; 
+    const days = filteredRecorders.length * 11;
 
     return {
       uniqueSpeciesCount: detectedSpecies.size,
@@ -312,6 +312,14 @@ const App: React.FC = () => {
           selectedSiteGroup={selectedSiteGroup}
         />
 
+        <BirdSearch
+          recorders={data.recorders}
+          speciesList={data.species_list}
+          speciesMetadata={data.species_metadata}
+          speciesDetectionsMatrix={landscapeSpeciesDetectionsMatrix}
+          detectionsByHour={landscapeDetectionsByHour}
+        />
+
         <RichnessComparison
           recorders={filteredRecorders}
           siteRichness={siteRichness}
@@ -340,13 +348,7 @@ const App: React.FC = () => {
           selectedSiteGroup={selectedSiteGroup}
         />
 
-        <BirdSearch
-          recorders={data.recorders}
-          speciesList={data.species_list}
-          speciesMetadata={data.species_metadata}
-          speciesDetectionsMatrix={landscapeSpeciesDetectionsMatrix}
-          detectionsByHour={landscapeDetectionsByHour}
-        />
+
       </main>
       <Footer />
     </div>

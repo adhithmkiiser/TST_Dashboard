@@ -1,8 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Tooltip } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { Recorder } from '../types';
+
+// Component to dynamically re-center/re-zoom the Leaflet map and trigger map.invalidateSize()
+const ChangeView: React.FC<{ center: [number, number]; zoom: number }> = ({ center, zoom }) => {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, zoom);
+    // Force Leaflet to recalculate container size to center pins perfectly
+    map.invalidateSize();
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [center, zoom, map]);
+  return null;
+};
 
 interface MapPanelProps {
   recorders: Recorder[];
@@ -19,7 +34,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
 }) => {
   const [mapCenter, setMapCenter] = useState<[number, number]>([11.0, 76.9]);
   const [mapKey, setMapKey] = useState<string>('all');
-  const [zoomLevel, setZoomLevel] = useState<number>(8);
+  const [zoomLevel, setZoomLevel] = useState<number>(8.5);
 
   // Compute map center and zoom level when selections change
   useEffect(() => {
@@ -29,14 +44,16 @@ const MapPanel: React.FC<MapPanelProps> = ({
       const sumLng = validRecorders.reduce((sum, r) => sum + (r.longitude || 0), 0);
       const centerLat = sumLat / validRecorders.length;
       const centerLng = sumLng / validRecorders.length;
-      
+
       setMapCenter([centerLat, centerLng]);
       setMapKey(`${selectedSiteGroup}-${centerLat}-${centerLng}`);
-      
+
       if (selectedSiteGroup === 'All') {
-        setZoomLevel(8);
+        setZoomLevel(8.5); // default zoom is slightly closer
+      } else if (validRecorders.length === 1) {
+        setZoomLevel(15.5); // tight zoom for single recorder
       } else {
-        setZoomLevel(12); // tight zoom for single landscape
+        setZoomLevel(13.5); // medium zoom for single landscape site group
       }
     }
   }, [recorders, selectedSiteGroup]);
@@ -86,6 +103,7 @@ const MapPanel: React.FC<MapPanelProps> = ({
           style={{ height: '100%', width: '100%' }}
           scrollWheelZoom={false}
         >
+          <ChangeView center={mapCenter} zoom={zoomLevel} />
           <TileLayer
             attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
             url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"

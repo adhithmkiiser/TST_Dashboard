@@ -19,6 +19,7 @@ export interface SpeciesDetails {
   foraging_stratum: string;
   indicator_group: string; // "Recovery-associated" | "Lantana-associated" | "None"
   image: string;
+  audio: string;
 }
 
 export interface AggregatedData {

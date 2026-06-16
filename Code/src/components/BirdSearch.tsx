@@ -2,6 +2,137 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import ReactECharts from 'echarts-for-react';
 import type { Recorder, SpeciesDetails } from '../types';
 
+const AudioPlayer: React.FC<{ src: string; speciesName: string }> = ({ src, speciesName }) => {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  useEffect(() => {
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setDuration(0);
+    if (audioRef.current) {
+      audioRef.current.load();
+    }
+  }, [src]);
+
+  const togglePlay = () => {
+    if (!src) return;
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+    } else {
+      audio.play().then(() => {
+        setIsPlaying(true);
+      }).catch((err) => {
+        console.error("Audio playback failed:", err);
+      });
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+    }
+  };
+
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const time = parseFloat(e.target.value);
+    setCurrentTime(time);
+    if (audioRef.current) {
+      audioRef.current.currentTime = time;
+    }
+  };
+
+  const handleEnded = () => {
+    setIsPlaying(false);
+    setCurrentTime(0);
+  };
+
+  const formatTime = (secs: number) => {
+    if (secs === 0 || isNaN(secs)) return '0:00';
+    const minutes = Math.floor(secs / 60);
+    const seconds = Math.floor(secs % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+  return (
+    <div className={`audio-player-card ${!src ? 'disabled' : ''}`}>
+      <audio
+        ref={audioRef}
+        src={src}
+        onTimeUpdate={handleTimeUpdate}
+        onLoadedMetadata={handleLoadedMetadata}
+        onEnded={handleEnded}
+      />
+
+      <div className="player-controls-row">
+        <button
+          onClick={togglePlay}
+          className={`play-btn ${isPlaying ? 'playing' : ''}`}
+          disabled={!src}
+          title={src ? 'Play/Pause bird call' : 'No call available'}
+        >
+          {isPlaying ? (
+            <svg fill="currentColor" viewBox="0 0 24 24" width="16" height="16">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+            </svg>
+          ) : (
+            <svg fill="currentColor" viewBox="0 0 24 24" width="16" height="16" style={{ marginLeft: '2px' }}>
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          )}
+        </button>
+
+        <div className="player-details">
+          <span className="player-subtitle">{src ? speciesName : 'From Xenocanto'}</span>
+          <span className="player-title">{src ? '(vocalisation recorderd on site)' : 'Acoustic Call Missing'}</span>
+
+        </div>
+
+        {src && isPlaying && (
+          <div className="soundwave-anim">
+            <span className="wave-bar"></span>
+            <span className="wave-bar"></span>
+            <span className="wave-bar"></span>
+            <span className="wave-bar"></span>
+          </div>
+        )}
+      </div>
+
+      {src && (
+        <div className="timeline-row">
+          <span className="time-lbl">{formatTime(currentTime)}</span>
+          <input
+            type="range"
+            min={0}
+            max={duration || 100}
+            value={currentTime}
+            onChange={handleSeek}
+            className="player-slider"
+            style={{
+              background: `linear-gradient(to right, var(--color-neutral) ${progressPercent}%, #cbd5e1 ${progressPercent}%)`
+            }}
+          />
+          <span className="time-lbl">{formatTime(duration)}</span>
+        </div>
+      )}
+    </div>
+  );
+};
+
 interface BirdSearchProps {
   recorders: Recorder[];
   speciesList: string[];
@@ -27,8 +158,8 @@ const BirdSearch: React.FC<BirdSearchProps> = ({
   useEffect(() => {
     if (!selectedSpecies && speciesList.length > 0) {
       // Find a common species like White-cheeked Barbet or Gray Junglefowl if available
-      const defaultSp = speciesList.includes('White-cheeked Barbet') 
-        ? 'White-cheeked Barbet' 
+      const defaultSp = speciesList.includes('White-cheeked Barbet')
+        ? 'White-cheeked Barbet'
         : speciesList[0];
       setSelectedSpecies(defaultSp);
     }
@@ -83,10 +214,10 @@ const BirdSearch: React.FC<BirdSearchProps> = ({
     let totalDetections = 0;
     let lcDetections = 0;
     let liDetections = 0;
-    
+
     let lcRecordersCount = 0;
     let liRecordersCount = 0;
-    
+
     const detectedRecorders: string[] = [];
     const detectedSiteGroups = new Set<string>();
 
@@ -117,9 +248,10 @@ const BirdSearch: React.FC<BirdSearchProps> = ({
       vocal_activity: meta?.vocal_activity || 'Unknown',
       iucn: meta?.iucn || 'LC',
       foraging_stratum: meta?.foraging_stratum || 'Unknown',
-      indicator_group: meta?.indicator_group || 'None',
+      indicator_group: (!meta?.indicator_group || meta.indicator_group === 'nan' || meta.indicator_group === 'None') ? 'Nil' : meta.indicator_group,
       image: meta?.image || '',
-      
+      audio: meta?.audio || '',
+
       totalDetections,
       lcDetections,
       liDetections,
@@ -218,24 +350,27 @@ const BirdSearch: React.FC<BirdSearchProps> = ({
 
       {profileData ? (
         <div className="profile-card">
-          <div className="profile-image-container">
-            {profileData.image && !profileData.image.includes('nan') ? (
-              <img
-                src={profileData.image}
-                alt={profileData.name}
-                className="profile-img"
-                onError={(e) => {
-                  // If image fails, hide it and show fallback placeholder
-                  (e.target as HTMLElement).style.display = 'none';
-                }}
-              />
-            ) : null}
-            <div className="profile-placeholder">
-              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: '48px', height: '48px' }}>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-              </svg>
-              <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Avian Species Profile</span>
+          <div className="profile-left-col">
+            <div className="profile-image-container">
+              {profileData.image && !profileData.image.includes('nan') ? (
+                <img
+                  src={profileData.image}
+                  alt={profileData.name}
+                  className="profile-img"
+                  onError={(e) => {
+                    // If image fails, hide it and show fallback placeholder
+                    (e.target as HTMLElement).style.display = 'none';
+                  }}
+                />
+              ) : null}
+              <div className="profile-placeholder">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: '48px', height: '48px' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+                <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Avian Species Profile</span>
+              </div>
             </div>
+            <AudioPlayer src={profileData.audio} speciesName={profileData.name} />
           </div>
 
           <div className="profile-details">
@@ -277,7 +412,7 @@ const BirdSearch: React.FC<BirdSearchProps> = ({
               </div>
               <div className="meta-item">
                 <span className="meta-label">Indicator Class</span>
-                <span className="meta-value" style={{ color: profileData.indicator_group !== 'None' ? 'var(--color-neutral)' : 'var(--text-main)' }}>
+                <span className="meta-value" style={{ color: profileData.indicator_group !== 'Nil' ? 'var(--color-neutral)' : 'var(--text-main)' }}>
                   {profileData.indicator_group}
                 </span>
               </div>
@@ -290,7 +425,7 @@ const BirdSearch: React.FC<BirdSearchProps> = ({
                   <span className="compare-header lc">Lantana-Cleared (LC)</span>
                   <div className="compare-stats">
                     <span className="compare-large">{profileData.lcDetections}</span>
-                    <span className="compare-label lc">calls</span>
+                    <span className="compare-label lc">detections</span>
                   </div>
                   <span className="kpi-subtext" style={{ color: 'var(--color-lc-dark)' }}>
                     Present in {profileData.lcRecordersCount} LC stations
@@ -301,7 +436,7 @@ const BirdSearch: React.FC<BirdSearchProps> = ({
                   <span className="compare-header li">Lantana-Infested (LI)</span>
                   <div className="compare-stats">
                     <span className="compare-large">{profileData.liDetections}</span>
-                    <span className="compare-label li">calls</span>
+                    <span className="compare-label li">detections</span>
                   </div>
                   <span className="kpi-subtext" style={{ color: 'var(--color-li-dark)' }}>
                     Present in {profileData.liRecordersCount} LI stations

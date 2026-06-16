@@ -114,12 +114,18 @@ for idx, row in df_species.iterrows():
     iucn = str(row.get('iucn status')).strip()
     stratum = str(row.get('foraging stratum')).strip()
     indicator = str(row.get('indicator group')).strip()
+    if pd.isna(row.get('indicator group')) or indicator == "" or indicator.lower() in ["nan", "none"]:
+        indicator = "Nil"
     
     # Generate generic wikipedia media image fallback if empty
     image_link = str(row.get('image link')).strip()
     if pd.isna(row.get('image link')) or image_link == "" or "nan" in image_link:
         formatted_name = comm.replace(" ", "_")
         image_link = f"https://commons.wikimedia.org/wiki/File:{formatted_name}.jpg"
+        
+    audio_link = str(row.get('audio link')).strip()
+    if pd.isna(row.get('audio link')) or audio_link == "" or "nan" in audio_link:
+        audio_link = ""
         
     species_metadata[comm] = {
         'scientific': sci,
@@ -130,7 +136,8 @@ for idx, row in df_species.iterrows():
         'iucn': iucn,
         'foraging_stratum': stratum,
         'indicator_group': indicator,
-        'image': image_link
+        'image': image_link,
+        'audio': audio_link
     }
 print(f"   -> Loaded ecological profiles for {len(species_metadata)} species.")
 
@@ -190,6 +197,8 @@ for i, fp in enumerate(csv_files):
         
         for _, row in df.iterrows():
             comm = str(row.get('Common name')).strip()
+            if comm.lower() == 'common crane':
+                continue
             conf = float(row.get('Confidence'))
             
             # Map species to index
@@ -207,8 +216,9 @@ for i, fp in enumerate(csv_files):
                     'vocal_activity': 'Unknown',
                     'iucn': 'LC',
                     'foraging_stratum': 'Unknown',
-                    'indicator_group': 'None',
-                    'image': ''
+                    'indicator_group': 'Nil',
+                    'image': '',
+                    'audio': ''
                 }
                 
             raw_detections.append({
