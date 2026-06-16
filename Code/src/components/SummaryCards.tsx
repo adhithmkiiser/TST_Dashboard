@@ -44,7 +44,7 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({
         <span className="kpi-label">Acoustic Survey Effort</span>
         <span className="kpi-value">{formatNum(totalFilesProcessed)}</span>
         <span className="kpi-subtext">
-          {formatNum(totalFilesProcessed)} of {formatNum(totalExpectedFiles)} clips parsed (~{formatNum(Math.round(totalFilesProcessed * 15 / 60))} hrs)
+          {formatNum(totalExpectedFiles)} of {formatNum(totalFilesProcessed)} clips parsed (~{formatNum(Math.round(totalFilesProcessed * 15 / 60))} hrs)
         </span>
       </div>
     </div>
