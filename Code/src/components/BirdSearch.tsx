@@ -98,8 +98,11 @@ const AudioPlayer: React.FC<{ src: string; speciesName: string }> = ({ src, spec
 
         <div className="player-details">
           <span className="player-subtitle">{src ? speciesName : 'From Xenocanto'}</span>
-          <span className="player-title">{src ? '(vocalisation recorderd on site)' : 'Acoustic Call Missing'}</span>
-
+          <span className="player-title">
+            {src 
+              ? (src.includes('/xeno-canto/') ? '(vocalisation from xeno-canto)' : '(vocalisation recorded on site)') 
+              : 'Acoustic Call Missing'}
+          </span>
         </div>
 
         {src && isPlaying && (
